@@ -1,17 +1,6 @@
 <?php
 require 'db.php';
 
-try {
-    // SQL-запрос для получения всех данных из таблицы
-    $sqlGet = "SELECT idUsers, name, secondname, age FROM users";
-    $GetData = $pdo->query($sqlGet);
-    // Получение данных в виде массива
-    $users = $GetData->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    die("Ошибка выполнения запроса: " . $e->getMessage());
-}
-
 function addUsers($pdo, $login, $password, $name, $secondname, $age) {
     try {
         $sqlAdd = "INSERT INTO `users` (`login`, `password`, `name`, `secondname`, `age`) VALUES (?, ?, ?, ?, ?)";
@@ -22,13 +11,17 @@ function addUsers($pdo, $login, $password, $name, $secondname, $age) {
     }
 }
 
-// Обрабатываем запрос POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['test']) && $_POST['test'] === 'runFunction') {
-    addUsers($pdo, "a", "a", "a", "a", 22);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add']) && $_POST['add'] === 'addUser') {
+    $login = $_POST['login'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $name = $_POST['name'] ?? '';
+    $secondname = $_POST['secondname'] ?? '';
+    $age = $_POST['age'] ?? 0;
 
-    // Перенаправляем на ту же страницу
+    addUsers($pdo, $login, $password, $name, $secondname, (int)$age);
+
     header("Location: " . $_SERVER['PHP_SELF']);
-    exit(); // Завершаем выполнение скрипта
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -36,13 +29,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['test']) && $_POST['te
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Document</title>
+<title>Регистрация</title>
 </head>
 <body>
-  <div>
-    <input type="text" placeholder="введите логин">
-    <input type="text"placeholder="введите пароль">
-  </div>
-<form method="POST">
-    <button type="submit" name="test" id="test" value="runFunction">Добавить</button>
-</form>
+  <form method="POST">
+    <div>
+      <input type="text" name="login" placeholder="Введите логин" required>
+      <input type="password" name="password" placeholder="Введите пароль" required>
+    </div>
+    <div>
+      <input type="text" name="name" placeholder="Введите имя" required>
+      <input type="text" name="secondname" placeholder="Введите фамилию" required>
+      <input type="number" name="age" placeholder="Введите возраст" required>
+    </div>
+    <button type="submit" name="add" value="addUser">Добавить</button>
+  </form>
+</body>
+</html>
